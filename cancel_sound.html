@@ -1,0 +1,67 @@
+<!doctype html>
+<html dir="ltr" lang="en">
+<head>
+<style>
+/* The slider itself */
+.slider {
+  -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 25px; /* Specified height */
+  background: #d3d3d3; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+  transition: opacity .2s;
+}
+</style>
+</head>
+<body>
+
+<h1>Cancel Sound!</h1>
+<button class="button-46" role="button" onclick="startAudio();" id="start_button">Start!</button>
+
+<h2 id="freq_text">1000 Hz</h2>
+<div class="slidecontainer">
+  <input type="range" min="1" max="10000" value="1000" width="100%" class="slider" id="frequency" oninput="updateSlider(this.value)">
+</div>
+
+<script>
+// create web audio api context
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+// create Oscillator node
+const oscillator = audioCtx.createOscillator();
+
+oscillator.type = 'sine';
+oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime); // value in hertz
+
+// Create an inverted form of audio
+var gainNode = audioCtx.createGain();
+gainNode.gain.setValueAtTime(-1, audioCtx.currentTime);
+oscillator.connect(gainNode);
+
+// Send final outputs to left and right channels
+const merger = audioCtx.createChannelMerger(2);
+//                 destination, outputIndex, inputIndex
+oscillator.connect(merger, 0, 0);
+gainNode.connect(merger, 0, 1);
+merger.connect(audioCtx.destination);
+
+
+function startAudio() {
+
+  // Hide Start button
+  document.getElementById('start_button').style.display = 'none';
+  oscillator.start();
+
+}
+
+function updateSlider(frequency) {
+  document.getElementById('freq_text').innerHTML = frequency + ' Hz';
+  oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+}
+  
+</script>
+</body>
+
